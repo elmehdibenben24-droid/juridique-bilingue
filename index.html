@@ -3,100 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المحرر القانوني والإداري الصارم</title>
+    <title>المحرر القانوني والإداري</title>
     <style>
-        :root {
-            --primary: #1e3a8a;
-            --secondary: #f8fafc;
-            --text: #0f172a;
-            --border: #cbd5e1;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f1f5f9;
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        .container {
-            background: white;
-            width: 100%;
-            max-width: 800px;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border-top: 5px solid var(--primary);
-        }
-        h1 { color: var(--primary); font-size: 1.5rem; margin-bottom: 5px; }
-        p.subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-        
-        textarea {
-            width: 100%;
-            height: 150px;
-            padding: 15px;
-            border: 1px solid var(--border);
-            border-radius: 5px;
-            font-size: 1rem;
-            font-family: inherit;
-            resize: vertical;
-            box-sizing: border-box;
-            margin-bottom: 15px;
-        }
+        :root { --primary: #1e3a8a; --secondary: #f8fafc; --text: #0f172a; --border: #cbd5e1; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { background: white; width: 100%; max-width: 800px; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-top: 5px solid var(--primary); }
+        h1 { color: var(--primary); font-size: 1.5rem; margin-bottom: 20px; text-align: center; }
+        textarea { width: 100%; height: 150px; padding: 15px; border: 1px solid var(--border); border-radius: 5px; font-size: 1rem; font-family: inherit; resize: vertical; box-sizing: border-box; margin-bottom: 15px; }
         textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); }
-        .controls { display: flex; gap: 10px; margin-bottom: 20px; }
-        button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.2s;
-            flex-grow: 1;
-        }
+        button { background-color: var(--primary); color: white; border: none; padding: 12px 25px; font-size: 1rem; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
         button:hover { background-color: #172554; }
         button:disabled { background-color: #94a3b8; cursor: not-allowed; }
-        #result-container {
-            background-color: var(--secondary);
-            border: 1px solid var(--border);
-            padding: 20px;
-            border-radius: 5px;
-            min-height: 200px;
-            white-space: pre-wrap;
-            line-height: 1.6;
-            font-size: 1rem;
-        }
-        .loading { display: none; color: var(--primary); font-weight: bold; text-align: center; margin-bottom: 15px; }
+        #result-container { margin-top: 20px; background-color: var(--secondary); border: 1px solid var(--border); padding: 20px; border-radius: 5px; min-height: 200px; white-space: pre-wrap; line-height: 1.6; font-size: 1rem; display: none; }
+        .loading { display: none; color: var(--primary); font-weight: bold; text-align: center; margin-top: 15px; }
     </style>
 </head>
 <body>
-
     <div class="container">
         <h1>المحرر القانوني والإداري</h1>
-        <p class="subtitle">أداة مخصصة للتحضير لمباراة عمداء الشرطة (محرك Gemini).</p>
-
         <textarea id="user-input" placeholder="أدخل الموضوع القانوني أو الإداري هنا (بالعربية أو الفرنسية)..."></textarea>
-        
-        <div class="controls">
-            <button id="submit-btn" onclick="processRequest()">تحرير الموضوع</button>
-        </div>
-
-        <div id="loading" class="loading">جاري الصياغة الإدارية... يرجى الانتظار.</div>
-        
-        <div id="result-container">ستظهر الإجابة المهيكلة هنا...</div>
+        <button id="submit-btn" onclick="processRequest()">تحرير الموضوع</button>
+        <div id="loading" class="loading">جاري الصياغة الإدارية... يرجى الانتظار</div>
+        <div id="result-container"></div>
     </div>
 
     <script>
-        // تم دمج المفتاح الخاص بك هنا
-        const API_KEY = "AQ.Ab8RN6IxctCjPXt0S7DK87ZKZwTjZX8gDKrsAyzA7xJLEp8u2g"; 
-
+        // المفتاح مدمج هنا مباشرة بدون إظهاره في الواجهة
+        const API_KEY = "AQ.Ab8RN6IxctCjPXt0S7DK87ZKZwTjZX8gDKrsAyzA7xJLEp8u2g";
         const SYSTEM_PROMPT = `أنت خبير في القانون العام والخاص المغربي وإطار إداري أمني عالي.
 1. إذا كان السؤال بالعربية: أجب بلغة إدارية صارمة ومباشرة، بدون حشو. استخدم هيكلة قانونية واضحة (مقدمة، مباحث، مطالب). اعتمد المصطلحات القانونية المغربية حصراً.
-2. Si la question est en français: Réponds avec une rigueur administrative et juridique absolue. Pas de phrases génériques. Structure obligatoirement en plan bipartite (I. A/B, II. A/B). Utilise un vocabulaire juridique marocain précis.
+2. Si la question est en français: Réponds avec une rigueur administrative et juridique absolue. Structure obligatoirement en plan bipartite (I. A/B, II. A/B). Utilise un vocabulaire juridique marocain précis.
 3. التزم بالحياد والموضوعية التامة.`;
 
         async function processRequest() {
@@ -107,50 +43,39 @@
             const query = inputField.value.trim();
 
             if (!query) {
-                alert("المرجاء إدخال موضوع أو سؤال قانوني أولاً.");
+                alert("المرجو إدخال الموضوع أولاً.");
                 return;
             }
 
             inputField.disabled = true;
             submitBtn.disabled = true;
             loadingIndicator.style.display = "block";
-            resultContainer.innerText = "";
+            resultContainer.style.display = "none";
 
             const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
             
-            const requestBody = {
-                systemInstruction: {
-                    parts: [{ text: SYSTEM_PROMPT }]
-                },
-                contents: [{ parts: [{ text: query }] }],
-                generationConfig: {
-                    temperature: 0.1, 
-                    maxOutputTokens: 2048
-                }
-            };
-
             try {
                 const response = await fetch(GEMINI_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestBody)
+                    body: JSON.stringify({
+                        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+                        contents: [{ parts: [{ text: query }] }],
+                        generationConfig: { temperature: 0.1, maxOutputTokens: 2048 }
+                    })
                 });
 
                 const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error ? data.error.message : "خطأ في الشبكة.");
-                }
-
-                if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
+                
+                if (data.candidates && data.candidates[0].content) {
                     resultContainer.innerText = data.candidates[0].content.parts[0].text;
+                    resultContainer.style.display = "block";
                 } else {
-                    resultContainer.innerText = "لم يتم الحصول على إجابة واضحة.";
+                    throw new Error("حدث خطأ في توليد الإجابة.");
                 }
-
             } catch (error) {
-                console.error("Erreur:", error);
-                resultContainer.innerText = `حدث خطأ: ${error.message}`;
+                resultContainer.innerText = "حدث خطأ في المعالجة. يرجى المحاولة مرة أخرى.";
+                resultContainer.style.display = "block";
             } finally {
                 inputField.disabled = false;
                 submitBtn.disabled = false;
