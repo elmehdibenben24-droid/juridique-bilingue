@@ -32,26 +32,6 @@
         h1 { color: var(--primary); font-size: 1.5rem; margin-bottom: 5px; }
         p.subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
         
-        /* إعدادات المفتاح */
-        .settings-panel {
-            background-color: #f8fafc;
-            padding: 15px;
-            border-radius: 5px;
-            border: 1px dashed var(--border);
-            margin-bottom: 15px;
-            display: flex;
-            gap: 10px;
-        }
-        .settings-panel input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 5px;
-        }
-        .settings-panel button {
-            background-color: #475569;
-        }
-
         textarea {
             width: 100%;
             height: 150px;
@@ -64,6 +44,7 @@
             box-sizing: border-box;
             margin-bottom: 15px;
         }
+        textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); }
         .controls { display: flex; gap: 10px; margin-bottom: 20px; }
         button {
             background-color: var(--primary);
@@ -96,13 +77,7 @@
 
     <div class="container">
         <h1>المحرر القانوني والإداري</h1>
-        <p class="subtitle">أداة مخصصة للتحضير لمباراة عمداء الشرطة - تحرير بمقاسات قانونية دقيقة.</p>
-
-        <!-- حقل إدخال مفتاح API -->
-        <div class="settings-panel" id="api-panel">
-            <input type="password" id="api-key-input" placeholder="أدخل مفتاح API هنا للمرة الأولى فقط...">
-            <button onclick="saveApiKey()">حفظ المفتاح</button>
-        </div>
+        <p class="subtitle">أداة مخصصة للتحضير لمباراة عمداء الشرطة (محرك Gemini).</p>
 
         <textarea id="user-input" placeholder="أدخل الموضوع القانوني أو الإداري هنا (بالعربية أو الفرنسية)..."></textarea>
         
@@ -116,39 +91,16 @@
     </div>
 
     <script>
+        // --- ضع المفتاح الخاص بك هنا ---
+        const API_KEY = "حط_المفتاح_ديالك_هنا"; 
+        // -------------------------------
+
         const SYSTEM_PROMPT = `أنت خبير في القانون العام والخاص المغربي وإطار إداري أمني عالي.
 1. إذا كان السؤال بالعربية: أجب بلغة إدارية صارمة ومباشرة، بدون حشو. استخدم هيكلة قانونية واضحة (مقدمة، مباحث، مطالب). اعتمد المصطلحات القانونية المغربية حصراً.
 2. Si la question est en français: Réponds avec une rigueur administrative et juridique absolue. Pas de phrases génériques. Structure obligatoirement en plan bipartite (I. A/B, II. A/B). Utilise un vocabulaire juridique marocain précis.
 3. التزم بالحياد والموضوعية التامة.`;
 
-        const API_URL = "https://api.openai.com/v1/chat/completions"; 
-
-        // التحقق من وجود المفتاح عند تحميل الصفحة
-        window.onload = () => {
-            const savedKey = localStorage.getItem('legal_api_key');
-            if (savedKey) {
-                document.getElementById('api-panel').style.display = 'none';
-            }
-        };
-
-        // حفظ المفتاح محلياً
-        function saveApiKey() {
-            const key = document.getElementById('api-key-input').value.trim();
-            if (key) {
-                localStorage.setItem('legal_api_key', key);
-                document.getElementById('api-panel').style.display = 'none';
-                alert("تم حفظ المفتاح بنجاح في متصفحك.");
-            }
-        }
-
         async function processRequest() {
-            const apiKey = localStorage.getItem('legal_api_key');
-            if (!apiKey) {
-                alert("المرجو إدخال وحفظ مفتاح API أولاً.");
-                document.getElementById('api-panel').style.display = 'flex';
-                return;
-            }
-
             const inputField = document.getElementById('user-input');
             const submitBtn = document.getElementById('submit-btn');
             const resultContainer = document.getElementById('result-container');
@@ -160,50 +112,51 @@
                 return;
             }
 
+            if (API_KEY === "حط_المفتاح_ديالك_هنا") {
+                alert("نسيتي ما حطيتيش مفتاح API فالكود! سير جيبو من aistudio.google.com وحطو فسطر المتغير API_KEY.");
+                return;
+            }
+
             inputField.disabled = true;
             submitBtn.disabled = true;
             loadingIndicator.style.display = "block";
             resultContainer.innerText = "";
 
+            const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+            
             const requestBody = {
-                model: "gpt-4o-mini", // قم بتغييره إن لزم الأمر
-                messages: [
-                    { role: "system", content: SYSTEM_PROMPT },
-                    { role: "user", content: query }
-                ],
-                temperature: 0.1,
-                max_tokens: 2000
+                systemInstruction: {
+                    parts: [{ text: SYSTEM_PROMPT }]
+                },
+                contents: [{ parts: [{ text: query }] }],
+                generationConfig: {
+                    temperature: 0.1, 
+                    maxOutputTokens: 2048
+                }
             };
 
             try {
-                const response = await fetch(API_URL, {
+                const response = await fetch(GEMINI_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestBody)
                 });
 
-                if (response.status === 401) {
-                    throw new Error("مفتاح API غير صالح.");
-                } else if (!response.ok) {
-                    throw new Error(`خطأ في الشبكة: ${response.status}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error ? data.error.message : "خطأ في الشبكة.");
                 }
 
-                const data = await response.json();
-                resultContainer.innerText = data.choices[0].message.content;
+                if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
+                    resultContainer.innerText = data.candidates[0].content.parts[0].text;
+                } else {
+                    resultContainer.innerText = "لم يتم الحصول على إجابة واضحة.";
+                }
 
             } catch (error) {
                 console.error("Erreur:", error);
-                resultContainer.innerText = error.message === "مفتاح API غير صالح." 
-                    ? "مفتاح API غير صالح. يرجى مسح بيانات المتصفح وإدخال مفتاح صحيح." 
-                    : "حدث خطأ أثناء الاتصال بالخادم. تأكد من اتصالك بالإنترنت.";
-                
-                if (error.message === "مفتاح API غير صالح.") {
-                    localStorage.removeItem('legal_api_key');
-                    document.getElementById('api-panel').style.display = 'flex';
-                }
+                resultContainer.innerText = `حدث خطأ: ${error.message}`;
             } finally {
                 inputField.disabled = false;
                 submitBtn.disabled = false;
