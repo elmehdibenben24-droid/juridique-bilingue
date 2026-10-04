@@ -1,546 +1,215 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>المساعد القانوني المزدوج | JuridiqueBilingue</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Cairo', sans-serif; background-color: #0f172a; color: #f8fafc; }
-    .font-fr { font-family: 'Inter', sans-serif; direction: ltr; text-align: left; }
-    .glass { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-    @media print {
-      .no-print { display: none !important; }
-      body { background: white; color: black; }
-      .glass { background: white; border: 1px solid #ccc; color: black; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المحرر القانوني والإداري الصارم</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #f8fafc;
+            --text: #0f172a;
+            --border: #cbd5e1;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f1f5f9;
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid var(--primary);
+        }
+        h1 { color: var(--primary); font-size: 1.5rem; margin-bottom: 5px; }
+        p.subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        
+        /* إعدادات المفتاح */
+        .settings-panel {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px dashed var(--border);
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        .settings-panel input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+        }
+        .settings-panel button {
+            background-color: #475569;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+            flex-grow: 1;
+        }
+        button:hover { background-color: #172554; }
+        button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        #result-container {
+            background-color: var(--secondary);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 5px;
+            min-height: 200px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+        .loading { display: none; color: var(--primary); font-weight: bold; text-align: center; margin-bottom: 15px; }
+    </style>
 </head>
-<body class="min-h-screen pb-16">
+<body>
 
-  <!-- Header -->
-  <header class="border-b border-slate-800 bg-slate-900/90 sticky top-0 z-30 backdrop-blur-md no-print">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 font-extrabold text-xl shadow-lg shadow-amber-500/20">
-          ⚖️
-        </div>
-        <div>
-          <h1 class="text-lg md:text-xl font-bold text-white">المساعد القانوني المزدوج <span class="text-amber-400 font-fr text-sm font-semibold">JuridiqueBilingue</span></h1>
-          <p class="text-xs text-slate-400">حول فكرتك بالعربية إلى موضوع قانوني بالفرنسية المبسطة مع ترجمته الفورية</p>
-        </div>
-      </div>
+    <div class="container">
+        <h1>المحرر القانوني والإداري</h1>
+        <p class="subtitle">أداة مخصصة للتحضير لمباراة عمداء الشرطة - تحرير بمقاسات قانونية دقيقة.</p>
 
-      <div class="flex items-center gap-2">
-        <button onclick="toggleSavedModal()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition">
-          📚 المواضيع المحفوظة (<span id="savedCount">0</span>)
-        </button>
-        <button onclick="toggleApiModal()" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-amber-400 border border-slate-700 transition">
-          ⚙️ إعدادات الذكاء الاصطناعي
-        </button>
-      </div>
+        <!-- حقل إدخال مفتاح API -->
+        <div class="settings-panel" id="api-panel">
+            <input type="password" id="api-key-input" placeholder="أدخل مفتاح API هنا للمرة الأولى فقط...">
+            <button onclick="saveApiKey()">حفظ المفتاح</button>
+        </div>
+
+        <textarea id="user-input" placeholder="أدخل الموضوع القانوني أو الإداري هنا (بالعربية أو الفرنسية)..."></textarea>
+        
+        <div class="controls">
+            <button id="submit-btn" onclick="processRequest()">تحرير الموضوع</button>
+        </div>
+
+        <div id="loading" class="loading">جاري الصياغة الإدارية... يرجى الانتظار.</div>
+        
+        <div id="result-container">ستظهر الإجابة المهيكلة هنا...</div>
     </div>
-  </header>
 
-  <!-- Main Container -->
-  <main class="max-w-6xl mx-auto px-4 mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <script>
+        const SYSTEM_PROMPT = `أنت خبير في القانون العام والخاص المغربي وإطار إداري أمني عالي.
+1. إذا كان السؤال بالعربية: أجب بلغة إدارية صارمة ومباشرة، بدون حشو. استخدم هيكلة قانونية واضحة (مقدمة، مباحث، مطالب). اعتمد المصطلحات القانونية المغربية حصراً.
+2. Si la question est en français: Réponds avec une rigueur administrative et juridique absolue. Pas de phrases génériques. Structure obligatoirement en plan bipartite (I. A/B, II. A/B). Utilise un vocabulaire juridique marocain précis.
+3. التزم بالحياد والموضوعية التامة.`;
 
-    <!-- Input Panel -->
-    <section class="lg:col-span-5 space-y-5 no-print">
-      <div class="glass rounded-2xl p-5 shadow-xl space-y-4">
-        <h2 class="text-base font-bold text-amber-400 flex items-center gap-2">
-          <span>1. حدد إطار الموضوع</span>
-        </h2>
+        const API_URL = "https://api.openai.com/v1/chat/completions"; 
 
-        <!-- Branch Selection -->
-        <div>
-          <label class="block text-xs text-slate-300 mb-2 font-semibold">الفرع القانوني:</label>
-          <div class="grid grid-cols-2 gap-2">
-            <button type="button" id="btnPublic" onclick="setBranch('public')" class="py-2.5 px-3 rounded-xl text-xs font-bold border transition bg-amber-500/20 border-amber-500 text-amber-300">
-              🏛️ القانون العام (Droit Public)
-            </button>
-            <button type="button" id="btnPrivate" onclick="setBranch('private')" class="py-2.5 px-3 rounded-xl text-xs font-bold border transition bg-slate-800/70 border-slate-700 text-slate-300 hover:bg-slate-800">
-              ⚖️ القانون الخاص (Droit Privé)
-            </button>
-          </div>
-        </div>
+        // التحقق من وجود المفتاح عند تحميل الصفحة
+        window.onload = () => {
+            const savedKey = localStorage.getItem('legal_api_key');
+            if (savedKey) {
+                document.getElementById('api-panel').style.display = 'none';
+            }
+        };
 
-        <!-- Specialty Selection -->
-        <div>
-          <label class="block text-xs text-slate-300 mb-1.5 font-semibold">التخصص الدقيق:</label>
-          <select id="subBranch" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-            <option value="Droit Administratif (القانون الإداري)">القانون الإداري (Droit Administratif)</option>
-            <option value="Police Administrative et Ordre Public (الشرطة الإدارية والنظام العام)">الشرطة الإدارية والنظام العام (Police Administrative)</option>
-            <option value="Droit Constitutionnel (القانون الدستوري)">القانون الدستوري (Droit Constitutionnel)</option>
-            <option value="Libertés Publiques et Droits de l'Homme (الحريات العامة وحقوق الإنسان)">الحريات العامة وحقوق الإنسان (Libertés Publiques)</option>
-            <option value="Finances Publiques (المالية العامة)">المالية العامة (Finances Publiques)</option>
-          </select>
-        </div>
-
-        <!-- Level / Style -->
-        <div>
-          <label class="block text-xs text-slate-300 mb-1.5 font-semibold">أسلوب الصياغة الفرنسية:</label>
-          <select id="styleLevel" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-            <option value="simple">فرنسية واضحة وسهلة الحفظ (موصى به للامتحانات)</option>
-            <option value="academic">فرنسية أكاديمية رسمية مع جمل قصيرة</option>
-            <option value="summary">ملخص مركز على شكل نقاط (Fiche de révision)</option>
-          </select>
-        </div>
-
-        <!-- Topic Input -->
-        <div>
-          <label class="block text-xs text-slate-300 mb-1.5 font-semibold">اكتب فكرة الموضوع بالعربية (بأسلوبك العادي):</label>
-          <textarea id="topicInput" rows="4" placeholder="مثال: دور الشرطة الإدارية في الحفاظ على النظام العام (الأمن العام، الصحة العامة، السكينة العامة) والرقابة القضائية عليها..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 leading-relaxed"></textarea>
-        </div>
-
-        <!-- Quick Examples -->
-        <div>
-          <p class="text-xs text-slate-400 mb-2">أفكار سريعة للتجربة بضغطة زر:</p>
-          <div class="flex flex-wrap gap-1.5">
-            <button onclick="fillExample('دور الشرطة الإدارية في حماية النظام العام وحدود سلطتها تحت رقابة القضاء الإداري', 'public')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">
-              الشرطة الإدارية والنظام العام
-            </button>
-            <button onclick="fillExample('المرفق العام ومبادئه الأساسية: الاستمرارية، المساواة، والقابلية للتكيف', 'public')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">
-              مبادئ المرفق العام
-            </button>
-            <button onclick="fillExample('شروط المسؤولية المدنية التقصيرية: الخطأ، الضرر، والعلاقة السببية', 'private')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">
-              المسؤولية المدنية
-            </button>
-            <button onclick="fillExample('مبدأ شرعية الجرائم والعقوبات ودور النيابة العامة في تحريك الدعوى العمومية', 'private')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition">
-              الشرعية الجنائية والنيابة العامة
-            </button>
-          </div>
-        </div>
-
-        <!-- Generate Button -->
-        <button id="generateBtn" onclick="generateEssay()" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2">
-          <span>✨ توليد الموضوع بالفرنسية مع الترجمة العربية</span>
-        </button>
-      </div>
-
-      <!-- Ready-to-use Connectors Box -->
-      <div class="glass rounded-2xl p-5 shadow-xl space-y-3">
-        <h3 class="text-sm font-bold text-amber-400">💡 روابط منهجية جاهزة ترفع نقطتك يوم الامتحان</h3>
-        <div class="space-y-2 text-xs">
-          <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex justify-between items-center gap-2">
-            <span class="text-slate-300">للتمهيد في المقدمة:</span>
-            <span class="font-fr text-amber-300 font-medium">Il est communément admis que...</span>
-          </div>
-          <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex justify-between items-center gap-2">
-            <span class="text-slate-300">لطرح الإشكالية:</span>
-            <span class="font-fr text-amber-300 font-medium">Dès lors, une question centrale s'impose :</span>
-          </div>
-          <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 flex justify-between items-center gap-2">
-            <span class="text-slate-300">للإعلان عن التصميم:</span>
-            <span class="font-fr text-amber-300 font-medium">Il convient d'analyser (I) avant d'examiner (II).</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Output Panel -->
-    <section class="lg:col-span-7 space-y-5">
-      <!-- Loading State -->
-      <div id="loadingBox" class="hidden glass rounded-2xl p-10 text-center space-y-4">
-        <div class="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <h3 class="text-base font-bold text-white">جاري صياغة الموضوع القانوني بالفرنسية المبسطة وترجمته...</h3>
-        <p class="text-xs text-slate-400">يتم الآن بناء المقدمة، الإشكالية، التصميم الثنائي، والمصطلحات المفتاحية</p>
-      </div>
-
-      <!-- Empty State -->
-      <div id="emptyState" class="glass rounded-2xl p-10 text-center space-y-3 border-dashed border-2 border-slate-700">
-        <div class="text-4xl">📝</div>
-        <h3 class="text-base font-bold text-slate-200">جاهز لتحويل أفكارك إلى مواضيع قانونية متكاملة</h3>
-        <p class="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
-          اكتب فكرة الموضوع بالعربية في الخانة الجانبية أو اختر أحد الأمثلة السريعة، وستحصل على موضوع مصاغ بمنهجية قانونية (Introduction, Plan I & II, Conclusion) بالفرنسية السهلة مع شرحه بالعربية.
-        </p>
-      </div>
-
-      <!-- Result Container -->
-      <div id="resultContainer" class="hidden space-y-5">
-        <!-- Action Bar -->
-        <div class="glass rounded-xl p-3 flex flex-wrap items-center justify-between gap-2 no-print">
-          <div class="flex items-center gap-2">
-            <span id="badgeBranch" class="text-xs font-bold px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40">Droit Public</span>
-            <span class="text-xs text-slate-400">عرض مزدوج: فرنسي + عربي</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <button onclick="saveCurrentTopic()" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition">
-              ⭐ حفظ للمراجعة
-            </button>
-            <button onclick="copyAllText()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition">
-              📋 نسخ النص
-            </button>
-            <button onclick="window.print()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition">
-              🖨️ طباعة / PDF
-            </button>
-          </div>
-        </div>
-
-        <!-- Title Banner -->
-        <div class="glass rounded-2xl p-5 border-r-4 border-r-amber-500 space-y-2">
-          <div id="resTitleFr" class="font-fr text-lg md:text-xl font-bold text-amber-400"></div>
-          <div id="resTitleAr" class="text-sm md:text-base font-bold text-slate-200"></div>
-        </div>
-
-        <!-- Dynamic Essay Sections -->
-        <div id="essaySections" class="space-y-4"></div>
-
-        <!-- Key Vocabulary Table -->
-        <div class="glass rounded-2xl p-5 space-y-3">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-amber-400">🔑 المصطلحات القانونية المفتاحية في هذا الموضوع (اضغط للاستماع للنطق)</h3>
-          </div>
-          <div id="vocabGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- API Key Modal -->
-  <div id="apiModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 no-print">
-    <div class="glass max-w-md w-full rounded-2xl p-6 space-y-4">
-      <div class="flex justify-between items-center">
-        <h3 class="text-base font-bold text-white">⚙️ إعدادات محرك الذكاء الاصطناعي</h3>
-        <button onclick="toggleApiModal()" class="text-slate-400 hover:text-white">✕</button>
-      </div>
-      <p class="text-xs text-slate-300 leading-relaxed">
-        التطبيق يعمل تلقائياً وبالمجان فور فتحه! وإذا أردت ربطه بمفتاح <strong>Google Gemini API</strong> المجاني الخاص بك للحصول على سرعة ودقة أعلى، يمكنك وضعه هنا (يُحفظ في هاتفك فقط):
-      </p>
-      <input id="geminiKeyInput" type="password" placeholder="AIzaSy..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white font-fr" />
-      <div class="flex justify-end gap-2">
-        <button onclick="saveApiKey()" class="px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs">حفظ المفتاح</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Saved Topics Modal -->
-  <div id="savedModal" class="hidden fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 no-print">
-    <div class="glass max-w-2xl w-full rounded-2xl p-6 space-y-4 max-h-[80vh] flex flex-col">
-      <div class="flex justify-between items-center">
-        <h3 class="text-base font-bold text-white">📚 مواضيعي المحفوظة للمراجعة</h3>
-        <button onclick="toggleSavedModal()" class="text-slate-400 hover:text-white">✕</button>
-      </div>
-      <div id="savedList" class="space-y-2.5 overflow-y-auto flex-1 pr-1"></div>
-    </div>
-  </div>
-
-  <script>
-    let currentBranch = 'public';
-    let lastGeneratedData = null;
-
-    const subBranches = {
-      public: [
-        "Droit Administratif (القانون الإداري)",
-        "Police Administrative et Ordre Public (الشرطة الإدارية والنظام العام)",
-        "Droit Constitutionnel (القانون الدستوري)",
-        "Libertés Publiques et Droits de l'Homme (الحريات العامة وحقوق الإنسان)",
-        "Finances Publiques (المالية العامة)"
-      ],
-      private: [
-        "Droit Pénal et Procédure Pénale (القانون الجنائي والمسطرة الجنائية)",
-        "Droit Civil - Obligations et Contrats (قانون الالتزامات والعقود)",
-        "Droit Commercial (القانون التجاري)",
-        "Droit de la Famille (مدونة الأسرة)",
-        "Organisation Judiciaire (التنظيم القضائي)"
-      ]
-    };
-
-    function setBranch(branch) {
-      currentBranch = branch;
-      const btnPub = document.getElementById('btnPublic');
-      const btnPriv = document.getElementById('btnPrivate');
-      const select = document.getElementById('subBranch');
-
-      if (branch === 'public') {
-        btnPub.className = "py-2.5 px-3 rounded-xl text-xs font-bold border transition bg-amber-500/20 border-amber-500 text-amber-300";
-        btnPriv.className = "py-2.5 px-3 rounded-xl text-xs font-bold border transition bg-slate-800/70 border-slate-700 text-slate-300 hover:bg-slate-800";
-      } else {
-        btnPriv.className = "py-2.5 px-3 rounded-xl text-xs font-bold border transition bg-amber-500/20 border-amber-500 text-amber-300";
-        btnPub.className = "py-2.5 px-3 rounded-xl text-xs font-bold border transition bg-slate-800/70 border-slate-700 text-slate-300 hover:bg-slate-800";
-      }
-
-      select.innerHTML = subBranches[branch].map(item => `<option value="${item}">${item}</option>`).join('');
-    }
-
-    function fillExample(text, branch) {
-      setBranch(branch);
-      document.getElementById('topicInput').value = text;
-    }
-
-    function speakFrench(text) {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'fr-FR';
-        utterance.rate = 0.92;
-        window.speechSynthesis.speak(utterance);
-      }
-    }
-
-    async function generateEssay() {
-      const idea = document.getElementById('topicInput').value.trim();
-      if (!idea) {
-        alert("المرجو كتابة فكرة الموضوع بالعربية أولاً أو اختيار مثال سريع.");
-        return;
-      }
-
-      const subBranch = document.getElementById('subBranch').value;
-      const styleLevel = document.getElementById('styleLevel').value;
-      const branchLabel = currentBranch === 'public' ? 'Droit Public (القانون العام)' : 'Droit Privé (القانون الخاص)';
-
-      document.getElementById('emptyState').classList.add('hidden');
-      document.getElementById('resultContainer').classList.add('hidden');
-      document.getElementById('loadingBox').classList.remove('hidden');
-
-      const systemPrompt = `Tu es un professeur de droit marocain et français. L'utilisateur te donne une idée de sujet juridique en arabe.
-Rédige un sujet juridique complet en FRANÇAIS FACILE, CLAIR et SIMPLE à mémoriser, avec sa TRADUCTION EXACTE en ARABE pour chaque étape.
-Branche: ${branchLabel} - ${subBranch}. Style: ${styleLevel}.
-Réponds UNIQUEMENT avec un objet JSON valide suivant exactement cette structure, sans texte avant ou après :
-{
-  "title_fr": "Titre du sujet en français simple",
-  "title_ar": "عنوان الموضوع بالعربية",
-  "sections": [
-    {
-      "step_name": "Introduction (المقدمة والتمهيد)",
-      "fr": "Paragraphe d'introduction en français clair (Accroche + Définition des termes)...",
-      "ar": "الترجمة العربية الدقيقة للمقدمة..."
-    },
-    {
-      "step_name": "Problématique et Plan (الإشكالية والتصميم)",
-      "fr": "Problématique claire sous forme de question + annonce du plan...",
-      "ar": "ترجمة الإشكالية والإعلان عن التصميم..."
-    },
-    {
-      "step_name": "Partie I : Cadre théorique et fondements (المبحث الأول)",
-      "fr": "Développement clair de la première partie (A et B) en phrases simples...",
-      "ar": "الترجمة العربية الواضحة للمبحث الأول..."
-    },
-    {
-      "step_name": "Partie II : Portée pratique, limites et garanties (المبحث الثاني)",
-      "fr": "Développement clair de la deuxième partie (A et B) en phrases simples...",
-      "ar": "الترجمة العربية الواضحة للمبحث الثاني..."
-    },
-    {
-      "step_name": "Conclusion (الخاتمة)",
-      "fr": "Conclusion synthétique et ouverture...",
-      "ar": "الترجمة العربية للخاتمة..."
-    }
-  ],
-  "vocab": [
-    {"fr": "Terme juridique 1", "ar": "المعنى بالعربية"},
-    {"fr": "Terme juridique 2", "ar": "المعنى بالعربية"},
-    {"fr": "Terme juridique 3", "ar": "المعنى بالعربية"},
-    {"fr": "Terme juridique 4", "ar": "المعنى بالعربية"},
-    {"fr": "Terme juridique 5", "ar": "المعنى بالعربية"},
-    {"fr": "Terme juridique 6", "ar": "المعنى بالعربية"}
-  ]
-}`;
-
-      let data = null;
-      const savedKey = localStorage.getItem('juridique_gemini_key');
-
-      try {
-        if (savedKey) {
-          // Call Gemini API if user provided key
-          const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${savedKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: systemPrompt + "\n\nالفكرة المطلوبة: " + idea }] }],
-              generationConfig: { responseMimeType: "application/json" }
-            })
-          });
-          const json = await resp.json();
-          const rawText = json.candidates[0].content.parts[0].text;
-          data = JSON.parse(rawText);
-        } else {
-          // Free zero-config AI endpoint
-          const resp = await fetch('https://text.pollinations.ai/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: "الفكرة بالعربية: " + idea }
-              ],
-              jsonMode: true
-            })
-          });
-          const text = await resp.text();
-          const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-          data = JSON.parse(cleaned);
+        // حفظ المفتاح محلياً
+        function saveApiKey() {
+            const key = document.getElementById('api-key-input').value.trim();
+            if (key) {
+                localStorage.setItem('legal_api_key', key);
+                document.getElementById('api-panel').style.display = 'none';
+                alert("تم حفظ المفتاح بنجاح في متصفحك.");
+            }
         }
-      } catch (err) {
-        console.warn("Using built-in fallback methodology engine:", err);
-        data = buildFallbackEssay(idea, currentBranch, subBranch);
-      }
 
-      if (!data || !data.sections) {
-        data = buildFallbackEssay(idea, currentBranch, subBranch);
-      }
+        async function processRequest() {
+            const apiKey = localStorage.getItem('legal_api_key');
+            if (!apiKey) {
+                alert("المرجو إدخال وحفظ مفتاح API أولاً.");
+                document.getElementById('api-panel').style.display = 'flex';
+                return;
+            }
 
-      lastGeneratedData = { ...data, idea, branch: currentBranch, date: new Date().toLocaleDateString('ar-MA') };
-      renderEssay(lastGeneratedData);
-    }
+            const inputField = document.getElementById('user-input');
+            const submitBtn = document.getElementById('submit-btn');
+            const resultContainer = document.getElementById('result-container');
+            const loadingIndicator = document.getElementById('loading');
+            const query = inputField.value.trim();
 
-    function buildFallbackEssay(idea, branch, subBranch) {
-      const isPublic = branch === 'public';
-      return {
-        title_fr: isPublic
-          ? "L'organisation de l'action publique et la garantie de l'État de droit"
-          : "L'encadrement juridique des rapports privés et la protection des droits",
-        title_ar: "تأطير الموضوع القانوني: " + idea,
-        sections: [
-          {
-            step_name: "Introduction (المقدمة والتعريف بالموضوع)",
-            fr: isPublic
-              ? "Dans tout État de droit moderne, l'action de l'administration vise à réaliser l'intérêt général et à maintenir l'ordre public. Ce sujet occupe une place essentielle en droit public car il cherche l'équilibre entre l'efficacité administrative et le respect des droits fondamentaux des citoyens."
-              : "Le droit privé organise les relations entre les individus afin d'assurer la justice contractuelle et la paix sociale. Ce sujet revêt une importance majeure car il définit clairement les obligations légales, les responsabilités et les mécanismes de protection judiciaire.",
-            ar: isPublic
-              ? "في كل دولة حق وقانون حديثة، يهدف عمل الإدارة إلى تحقيق المصلحة العامة والحفاظ على النظام العام. يحتل هذا الموضوع مكانة أساسية في القانون العام لأنه يبحث عن التوازن بين النجاعة الإدارية واحترام الحقوق الأساسية للمواطنين."
-              : "ينظم القانون الخاص العلاقات بين الأفراد لضمان العدالة التعاقدية والسلم الاجتماعي. ويكتسي هذا الموضوع أهمية كبرى لأنه يحدد بوضوح الالتزامات القانونية، المسؤوليات، وآليات الحماية القضائية."
-          },
-          {
-            step_name: "Problématique et Annonce du plan (الإشكالية والتصميم)",
-            fr: "Dès lors, une question centrale se pose : Comment le législateur parvient-il à encadrer ce mécanisme juridique tout en assurant un contrôle efficace ? Pour répondre à cette problématique, nous étudierons d'abord les fondements et principes directeurs (Partie I), avant d'analyser la portée pratique et les garanties de contrôle (Partie II).",
-            ar: "ومن هنا تبرز إشكالية محورية: كيف استطاع المشرع تأطير هذه الآلية القانونية مع ضمان رقابة فعالة؟ للإجابة عن هذه الإشكالية، سندرس أولاً الأسس والمبادئ الموجهة (المبحث الأول)، قبل تحليل الأثر العملي وضمانات الرقابة (المبحث الثاني)."
-          },
-          {
-            step_name: "Partie I : Les fondements juridiques et principes d'organisation (المبحث الأول: الأسس والمبادئ)",
-            fr: "A. Le cadre légal et les conditions de mise en œuvre :\nLa loi fixe des règles précises qui encadrent cette matière. Aucune mesure ne peut être prise sans une base légale claire (le principe de légalité).\n\nB. Les objectifs visés par le législateur :\nLe but principal est de protéger la stabilité sociale, la sécurité juridique et le bon fonctionnement des institutions.",
-            ar: "أ. الإطار القانوني وشروط التطبيق:\nيضع القانون قواعد دقيقة تؤطر هذا المجال، فلا يمكن اتخاذ أي إجراء بدون سند قانوني واضح (مبدأ الشرعية).\n\nب. الأهداف المتوخاة من طرف المشرع:\nالهدف الرئيسي هو حماية الاستقرار الاجتماعي، الأمن القانوني، والسير السليم للمؤسسات."
-          },
-          {
-            step_name: "Partie II : Les limites légales et le contrôle juridictionnel (المبحث الثاني: الحدود والرقابة القضائية)",
-            fr: "A. Le respect des droits et libertés :\nL'application de la règle de droit ne doit jamais être arbitraire. Elle doit respecter le principe de proportionnalité et les garanties procédurales.\n\nB. Le rôle essentiel du juge :\nLe juge exerce un contrôle strict pour sanctionner tout abus ou violation de la loi et assurer la réparation du préjudice éventuel.",
-            ar: "أ. احترام الحقوق والحريات:\nإن تطبيق القاعدة القانونية يجب ألا يكون تعسفياً أبداً، بل يجب أن يحترم مبدأ التناسب والضمانات المسطرية.\n\nب. الدور الأساسي للقاضي:\nيمارس القاضي رقابة صارمة لردع أي تجاوز أو خرق للقانون وضمان جبر الضرر المحتمل."
-          },
-          {
-            step_name: "Conclusion (الخاتمة)",
-            fr: "En conclusion, ce sujet démontre que la force de la règle juridique réside dans l'équilibre entre l'autorité de la loi et la protection des droits, sous la vigilance constante du pouvoir judiciaire.",
-            ar: "ختاماً، يبين هذا الموضوع أن قوة القاعدة القانونية تكمن في التوازن بين سلطة القانون وحماية الحقوق، تحت اليقظة المستمرة للسلطة القضائية."
-          }
-        ],
-        vocab: [
-          { fr: "L'intérêt général", ar: "المصلحة العامة" },
-          { fr: "L'ordre public", ar: "النظام العام" },
-          { fr: "Le principe de légalité", ar: "مبدأ الشرعية" },
-          { fr: "Le contrôle juridictionnel", ar: "الرقابة القضائية" },
-          { fr: "Le principe de proportionnalité", ar: "مبدأ التناسب" },
-          { fr: "La sécurité juridique", ar: "الأمن القانوني" }
-        ]
-      };
-    }
+            if (!query) {
+                alert("المرجاء إدخال موضوع أو سؤال قانوني أولاً.");
+                return;
+            }
 
-    function renderEssay(data) {
-      document.getElementById('loadingBox').classList.add('hidden');
-      document.getElementById('resultContainer').classList.remove('hidden');
+            inputField.disabled = true;
+            submitBtn.disabled = true;
+            loadingIndicator.style.display = "block";
+            resultContainer.innerText = "";
 
-      document.getElementById('badgeBranch').textContent = data.branch === 'public' ? 'Droit Public | القانون العام' : 'Droit Privé | القانون الخاص';
-      document.getElementById('resTitleFr').textContent = data.title_fr;
-      document.getElementById('resTitleAr').textContent = data.title_ar;
+            const requestBody = {
+                model: "gpt-4o-mini", // قم بتغييره إن لزم الأمر
+                messages: [
+                    { role: "system", content: SYSTEM_PROMPT },
+                    { role: "user", content: query }
+                ],
+                temperature: 0.1,
+                max_tokens: 2000
+            };
 
-      const sectionsContainer = document.getElementById('essaySections');
-      sectionsContainer.innerHTML = data.sections.map((sec, idx) => `
-        <div class="glass rounded-2xl p-5 space-y-3">
-          <div class="flex items-center justify-between border-b border-slate-700/80 pb-2">
-            <span class="text-xs font-extrabold text-amber-400">${sec.step_name}</span>
-            <button onclick="speakFrench(this.getAttribute('data-fr'))" data-fr="${sec.fr.replace(/"/g, '&quot;')}" class="no-print text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-lg border border-slate-700 transition">
-              🔊 استمع للنطق الفرنسي
-            </button>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-            <div class="font-fr bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 text-slate-100 text-sm leading-relaxed whitespace-pre-line">${sec.fr}</div>
-            <div class="bg-slate-900/50 p-3.5 rounded-xl border border-slate-800/80 text-slate-300 text-sm leading-relaxed whitespace-pre-line">${sec.ar}</div>
-          </div>
-        </div>
-      `).join('');
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(requestBody)
+                });
 
-      const vocabGrid = document.getElementById('vocabGrid');
-      vocabGrid.innerHTML = (data.vocab || []).map(v => `
-        <div onclick="speakFrench('${v.fr.replace(/'/g, "\\'")}')" class="cursor-pointer p-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 flex items-center justify-between transition">
-          <span class="text-xs text-slate-300 font-semibold">${v.ar}</span>
-          <span class="font-fr text-xs font-bold text-amber-400 flex items-center gap-1">🔊 ${v.fr}</span>
-        </div>
-      `).join('');
-    }
+                if (response.status === 401) {
+                    throw new Error("مفتاح API غير صالح.");
+                } else if (!response.ok) {
+                    throw new Error(`خطأ في الشبكة: ${response.status}`);
+                }
 
-    function copyAllText() {
-      if (!lastGeneratedData) return;
-      let text = `${lastGeneratedData.title_fr}\n${lastGeneratedData.title_ar}\n\n`;
-      lastGeneratedData.sections.forEach(s => {
-        text += `=== ${s.step_name} ===\n[FR]: ${s.fr}\n[AR]: ${s.ar}\n\n`;
-      });
-      navigator.clipboard.writeText(text);
-      alert("تم نسخ الموضوع كاملًا (فرنسي + عربي) إلى الحافظة!");
-    }
+                const data = await response.json();
+                resultContainer.innerText = data.choices[0].message.content;
 
-    function saveCurrentTopic() {
-      if (!lastGeneratedData) return;
-      const saved = JSON.parse(localStorage.getItem('juridique_saved_topics') || '[]');
-      saved.unshift(lastGeneratedData);
-      localStorage.setItem('juridique_saved_topics', JSON.stringify(saved.slice(0, 30)));
-      updateSavedCount();
-      alert("تم حفظ الموضوع في قائمة المراجعة بنجاح!");
-    }
-
-    function updateSavedCount() {
-      const saved = JSON.parse(localStorage.getItem('juridique_saved_topics') || '[]');
-      document.getElementById('savedCount').textContent = saved.length;
-    }
-
-    function toggleSavedModal() {
-      const modal = document.getElementById('savedModal');
-      modal.classList.toggle('hidden');
-      if (!modal.classList.contains('hidden')) {
-        const saved = JSON.parse(localStorage.getItem('juridique_saved_topics') || '[]');
-        const list = document.getElementById('savedList');
-        if (saved.length === 0) {
-          list.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">لا توجد مواضيع محفوظة بعد.</p>`;
-        } else {
-          list.innerHTML = saved.map((item, i) => `
-            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-2">
-              <div>
-                <div class="font-fr text-xs font-bold text-amber-400">${item.title_fr}</div>
-                <div class="text-xs text-slate-300">${item.title_ar}</div>
-              </div>
-              <button onclick="loadSavedTopic(${i})" class="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold text-xs">فتح</button>
-            </div>
-          `).join('');
+            } catch (error) {
+                console.error("Erreur:", error);
+                resultContainer.innerText = error.message === "مفتاح API غير صالح." 
+                    ? "مفتاح API غير صالح. يرجى مسح بيانات المتصفح وإدخال مفتاح صحيح." 
+                    : "حدث خطأ أثناء الاتصال بالخادم. تأكد من اتصالك بالإنترنت.";
+                
+                if (error.message === "مفتاح API غير صالح.") {
+                    localStorage.removeItem('legal_api_key');
+                    document.getElementById('api-panel').style.display = 'flex';
+                }
+            } finally {
+                inputField.disabled = false;
+                submitBtn.disabled = false;
+                loadingIndicator.style.display = "none";
+            }
         }
-      }
-    }
-
-    function loadSavedTopic(index) {
-      const saved = JSON.parse(localStorage.getItem('juridique_saved_topics') || '[]');
-      if (saved[index]) {
-        lastGeneratedData = saved[index];
-        document.getElementById('emptyState').classList.add('hidden');
-        renderEssay(lastGeneratedData);
-        toggleSavedModal();
-      }
-    }
-
-    function toggleApiModal() {
-      const modal = document.getElementById('apiModal');
-      modal.classList.toggle('hidden');
-      document.getElementById('geminiKeyInput').value = localStorage.getItem('juridique_gemini_key') || '';
-    }
-
-    function saveApiKey() {
-      const val = document.getElementById('geminiKeyInput').value.trim();
-      if (val) {
-        localStorage.setItem('juridique_gemini_key', val);
-      } else {
-        localStorage.removeItem('juridique_gemini_key');
-      }
-      toggleApiModal();
-      alert("تم حفظ الإعدادات بنجاح!");
-    }
-
-    updateSavedCount();
-  </script>
+    </script>
 </body>
 </html>
